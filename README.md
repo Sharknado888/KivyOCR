@@ -1,0 +1,2 @@
+# KivyOCR
+ OCR implementation
