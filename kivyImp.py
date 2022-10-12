@@ -1,0 +1,43 @@
+from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDRaisedButton
+from kivy.uix.image import Image
+from kivy.graphics.texture import Texture
+from kivy.clock import Clock
+import cv2
+
+class MainApp(MDApp):
+    
+    def build(self):
+        layout = MDBoxLayout(orientation='vertical')
+        self.image = Image()
+        layout.add_widget(self.image)
+        self.save_img = MDRaisedButton(
+            text="Click Here",
+            pos_hint={'center_x': .5, 'center_y': .5},
+            size_hint=(None, None)
+            )
+        self.save_img.bind(on_press=self.take_img)
+        layout.add_widget(self.save_img)
+        self.capture = cv2.VideoCapture(0)
+        Clock.schedule_interval(self.load_video, 1.0/30.0)
+        return layout
+    
+    def load_video(self, *args):
+        
+        ret, frame = self.capture.read()
+        #frame init
+        self.img_frame = frame
+        buffer = cv2.flip(frame, 0).tostring()
+        texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt = 'bgr')
+        texture.blit_buffer(buffer, colorfmt='bgr', bufferfmt='ubyte')
+        self.image.texture = texture
+    
+    def take_img(self, *args):
+        img_name = "pic@.png"
+        cv2.imwrite(img_name, self.img_frame)
+        
+    
+if __name__ == '__main__':
+    MainApp().run()
+    
